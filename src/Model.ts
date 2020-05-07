@@ -75,6 +75,7 @@ export class Model<T> {
     public set state(value: T) {
         const delta = (Object.keys(value) as (keyof T)[]).
             reduce<Partial<T>>((delta, changeKey) => {
+                // console.log(this._state[changeKey]);
                 if (value[changeKey] == this._state[changeKey]) {
                     return delta;
                 }

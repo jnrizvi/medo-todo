@@ -11,7 +11,7 @@ export namespace TodoEntry {
             attributes: {
                 innerHTML: `
                     ${document.head.innerHTML}
-                    <title>Todo App</title>
+                    <title>Todo App Original</title>
                     <meta name="mobile-web-app-capable" content="yes" />
                     <meta name="viewport" content="height=device-height,width=device-width,initial-scale=1,user-scalable=no" />
                 `,
@@ -55,21 +55,19 @@ export namespace TodoEntry {
                 type: "button",
                 attributes: {
                     onclick: () => {
-                            let incremented = model.state.clickCounter += 1
-                            console.log(incremented)
+                            let incremented = model.state.clickCounter + 1 // model.state.clickCounter += 1 mutates the state prematurely!
+                            // console.log(incremented)
                             model.mutate({clickCounter: incremented})
                         },
                     innerHTML: "Click Me"
                 }
             });
 
-            model.respond(["clickCounter"], state => {
+            // model.listen doesn't fire when the state mutates prematurely
+            model.listen(["clickCounter"], state => {
+                console.log('model.listen has fired')
                 let countCopy = state.clickCounter
-
                 numberBox.innerHTML = `${countCopy}`
-                return {
-                    clickCounter : countCopy
-                }
             });
         }
     }

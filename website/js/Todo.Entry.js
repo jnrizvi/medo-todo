@@ -129,6 +129,7 @@ define("Model", ["require", "exports"], function (require, exports) {
                 var delta = Object.keys(value).
                     reduce(function (delta, changeKey) {
                     var _a;
+                    // console.log(this._state[changeKey]);
                     if (value[changeKey] == _this._state[changeKey]) {
                         return delta;
                     }
@@ -333,7 +334,7 @@ define("Todo.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTimer.Styl
         function initializeClient() {
             var head = Util_HtmlBuilder_1.HtmlBuilder.assignToElement(document.head, {
                 attributes: {
-                    innerHTML: "\n                    " + document.head.innerHTML + "\n                    <title>Todo App</title>\n                    <meta name=\"mobile-web-app-capable\" content=\"yes\" />\n                    <meta name=\"viewport\" content=\"height=device-height,width=device-width,initial-scale=1,user-scalable=no\" />\n                ",
+                    innerHTML: "\n                    " + document.head.innerHTML + "\n                    <title>Todo App Original</title>\n                    <meta name=\"mobile-web-app-capable\" content=\"yes\" />\n                    <meta name=\"viewport\" content=\"height=device-height,width=device-width,initial-scale=1,user-scalable=no\" />\n                ",
                 },
             });
             var body = Util_HtmlBuilder_1.HtmlBuilder.assignToElement(document.body, {
@@ -361,20 +362,18 @@ define("Todo.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTimer.Styl
                     type: "button",
                     attributes: {
                         onclick: function () {
-                            var incremented = model_1.state.clickCounter += 1;
-                            console.log(incremented);
+                            var incremented = model_1.state.clickCounter + 1; // model.state.clickCounter += 1 mutates the state prematurely!
+                            // console.log(incremented)
                             model_1.mutate({ clickCounter: incremented });
                         },
                         innerHTML: "Click Me"
                     }
                 });
-                model_1.respond(["clickCounter"], function (state) {
+                // model.listen doesn't fire when the state mutates prematurely
+                model_1.listen(["clickCounter"], function (state) {
+                    console.log('model.listen has fired');
                     var countCopy = state.clickCounter;
-                    console.log(state.clickCounter);
                     numberBox_1.innerHTML = "" + countCopy;
-                    return {
-                        clickCounter: countCopy
-                    };
                 });
             }
         }
