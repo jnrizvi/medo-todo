@@ -69,10 +69,10 @@ export class Model<T> {
      * Setting the state replaces the existing state with an entirely new state,
      * checks for changes to members and notifies related listeners.
      */
-    public get state(): T {
+    public get state(): Readonly<T> {
         return this._state;
     }
-    public set state(value: T) {
+    public set state(value: Readonly<T> ) {
         const delta = (Object.keys(value) as (keyof T)[]).
             reduce<Partial<T>>((delta, changeKey) => {
                 // console.log(this._state[changeKey]);
