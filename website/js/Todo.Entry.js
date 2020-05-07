@@ -302,31 +302,31 @@ define("Util.HtmlBuilder", ["require", "exports"], function (require, exports) {
         HtmlBuilder.recycleElement = recycleElement;
     })(HtmlBuilder = exports.HtmlBuilder || (exports.HtmlBuilder = {}));
 });
-define("VideoTimer.Styles", ["require", "exports"], function (require, exports) {
+define("Todo.Styles", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var VideoTimerStyles;
-    (function (VideoTimerStyles) {
-        VideoTimerStyles.outline = {
+    var TodoStyles;
+    (function (TodoStyles) {
+        TodoStyles.outline = {
             display: "grid",
             width: "100%",
             height: "100%",
         };
-        VideoTimerStyles.centered = {
+        TodoStyles.centered = {
             display: "grid",
             alignItems: "center",
             justifyItems: "center",
             justifyContent: "center",
         };
-        VideoTimerStyles.text = {
+        TodoStyles.text = {
             textAlign: "center",
             fontFamily: "lato",
             color: "white",
         };
-        VideoTimerStyles.button = __assign(__assign({}, VideoTimerStyles.centered), { pointerEvents: "all", cursor: "pointer", userSelect: "none", fontSize: 32, backgroundColor: "grey", borderStyle: "solid", borderColor: "white", borderRadius: "10px", width: "2em", height: "2em", padding: "0.25em" });
-    })(VideoTimerStyles = exports.VideoTimerStyles || (exports.VideoTimerStyles = {}));
+        TodoStyles.button = __assign(__assign({}, TodoStyles.centered), { pointerEvents: "all", cursor: "pointer", userSelect: "none", fontSize: 32, backgroundColor: "grey", borderStyle: "solid", borderColor: "white", borderRadius: "10px", width: "2em", height: "2em", padding: "0.25em" });
+    })(TodoStyles = exports.TodoStyles || (exports.TodoStyles = {}));
 });
-define("Todo.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTimer.Styles", "Model"], function (require, exports, Util_HtmlBuilder_1, VideoTimer_Styles_1, Model_1) {
+define("Todo.Entry", ["require", "exports", "Util.HtmlBuilder", "Todo.Styles", "Model"], function (require, exports, Util_HtmlBuilder_1, Todo_Styles_1, Model_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var TodoEntry;
@@ -344,36 +344,63 @@ define("Todo.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTimer.Styl
             });
             var appContainer = Util_HtmlBuilder_1.HtmlBuilder.createChild(body, {
                 type: "div",
-                style: __assign(__assign({ gridArea: "a" }, VideoTimer_Styles_1.VideoTimerStyles.centered), { gridTemplateRows: "auto 3em auto", gridTemplateAreas: "\n                    \"p\"\n                    \"t\"\n                    \"g\"\n                " })
+                style: __assign({}, Todo_Styles_1.TodoStyles.centered)
             });
             // 🏭 Where the magic happens
             {
-                // whatever changes is listed as part of the state
+                // whatever changes is listed as a member of the state
                 var model_1 = new Model_1.Model({
-                    clickCounter: 0
+                    inputFieldValue: "",
+                    listOfTodos: []
                 });
-                var numberBox_1 = Util_HtmlBuilder_1.HtmlBuilder.createChild(appContainer, {
+                var formContainer = Util_HtmlBuilder_1.HtmlBuilder.createChild(appContainer, {
                     type: "div",
-                    attributes: {
-                        innerHTML: '0'
+                    style: {
+                        display: "flex"
                     }
                 });
-                var button = Util_HtmlBuilder_1.HtmlBuilder.createChild(appContainer, {
-                    type: "button",
+                var addNewInputField = Util_HtmlBuilder_1.HtmlBuilder.createChild(formContainer, {
+                    type: "input",
+                    attributes: {
+                        id: "addNewInputField",
+                        placeholder: "Enter Todo description",
+                        onchange: function () {
+                            var addNewInputField = document.getElementById("addNewInputField").value;
+                            model_1.mutate({ inputFieldValue: addNewInputField });
+                        },
+                    }
+                });
+                var addButton = Util_HtmlBuilder_1.HtmlBuilder.createChild(formContainer, {
+                    type: "div",
+                    style: __assign(__assign({}, Todo_Styles_1.TodoStyles.button), { fontSize: 24, width: "fit-content", height: "fit-content" }),
                     attributes: {
                         onclick: function () {
-                            var incremented = model_1.state.clickCounter + 1; // model.state.clickCounter += 1 mutates the state prematurely!
-                            // console.log(incremented)
-                            model_1.mutate({ clickCounter: incremented });
+                            // model.state.clickCounter += 1 mutates the state prematurely!
+                            console.log(model_1.state.inputFieldValue);
+                            var listOfTodosCopy = __spreadArrays(model_1.state.listOfTodos);
+                            listOfTodosCopy.push(model_1.state.inputFieldValue);
+                            model_1.mutate({ listOfTodos: listOfTodosCopy });
+                            document.getElementById("addNewInputField").value = "";
                         },
-                        innerHTML: "Click Me"
+                        innerHTML: "Add"
                     }
                 });
+                var taskListBox_1 = Util_HtmlBuilder_1.HtmlBuilder.createChild(appContainer, {
+                    type: "div",
+                });
                 // model.listen doesn't fire when the state mutates prematurely
-                model_1.listen(["clickCounter"], function (state) {
-                    console.log('model.listen has fired');
-                    var countCopy = state.clickCounter;
-                    numberBox_1.innerHTML = "" + countCopy;
+                model_1.listen(["listOfTodos"], function (state) {
+                    console.log(model_1.state.listOfTodos);
+                    var newTodo = Util_HtmlBuilder_1.HtmlBuilder.createChild(taskListBox_1, {
+                        type: "div",
+                        style: {
+                            padding: "8px",
+                            backgroundColor: "lightblue"
+                        },
+                        attributes: {
+                            innerHTML: state.inputFieldValue
+                        }
+                    });
                 });
             }
         }
@@ -382,7 +409,7 @@ define("Todo.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTimer.Styl
     // 👇 Client entry point
     TodoEntry.initializeClient();
 });
-define("VideoTimer.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTimer.Styles", "Model"], function (require, exports, Util_HtmlBuilder_2, VideoTimer_Styles_2, Model_2) {
+define("VideoTimer.Entry", ["require", "exports", "Util.HtmlBuilder", "Todo.Styles", "Model"], function (require, exports, Util_HtmlBuilder_2, Todo_Styles_2, Model_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // VideoTimerEntry
@@ -401,22 +428,22 @@ define("VideoTimer.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTime
             });
             var outline = Util_HtmlBuilder_2.HtmlBuilder.createChild(body, {
                 type: "div",
-                style: __assign(__assign({}, VideoTimer_Styles_2.VideoTimerStyles.outline), { gridTemplateRows: "3em 1fr 3em", gridTemplateAreas: "\n                    \"t t t\"\n                    \". a .\"\n                    \"f f f\"\n                " }),
+                style: __assign(__assign({}, Todo_Styles_2.TodoStyles.outline), { gridTemplateRows: "3em 1fr 3em", gridTemplateAreas: "\n                    \"t t t\"\n                    \". a .\"\n                    \"f f f\"\n                " }),
             });
             var header = Util_HtmlBuilder_2.HtmlBuilder.createChild(outline, {
                 type: "div",
-                style: __assign(__assign({ gridArea: "t" }, VideoTimer_Styles_2.VideoTimerStyles.centered), { borderColor: "green", borderStyle: "solid", borderRadius: "10px", padding: "0.5em" }),
+                style: __assign(__assign({ gridArea: "t" }, Todo_Styles_2.TodoStyles.centered), { borderColor: "green", borderStyle: "solid", borderRadius: "10px", padding: "0.5em" }),
             });
             Util_HtmlBuilder_2.HtmlBuilder.createChild(header, {
                 type: "div",
-                style: __assign({}, VideoTimer_Styles_2.VideoTimerStyles.text),
+                style: __assign({}, Todo_Styles_2.TodoStyles.text),
                 attributes: {
                     innerHTML: "🎥 video_timer 📝",
                 },
             });
             var appSpace = Util_HtmlBuilder_2.HtmlBuilder.createChild(outline, {
                 type: "div",
-                style: __assign(__assign({ gridArea: "a" }, VideoTimer_Styles_2.VideoTimerStyles.centered), { gridTemplateRows: "auto 3em auto", gridTemplateAreas: "\n                    \"p\"\n                    \"t\"\n                    \"g\"\n                " }),
+                style: __assign(__assign({ gridArea: "a" }, Todo_Styles_2.TodoStyles.centered), { gridTemplateRows: "auto 3em auto", gridTemplateAreas: "\n                    \"p\"\n                    \"t\"\n                    \"g\"\n                " }),
             });
             // 🏭 Where the magic happens
             {
@@ -428,7 +455,7 @@ define("VideoTimer.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTime
                 });
                 var startRecording_1 = Util_HtmlBuilder_2.HtmlBuilder.createChild(appSpace, {
                     type: "div",
-                    style: __assign({ gridArea: "p" }, VideoTimer_Styles_2.VideoTimerStyles.button),
+                    style: __assign({ gridArea: "p" }, Todo_Styles_2.TodoStyles.button),
                     attributes: {
                         innerHTML: "⏯",
                         onclick: function () {
@@ -449,19 +476,19 @@ define("VideoTimer.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTime
                 });
                 var timer_1 = Util_HtmlBuilder_2.HtmlBuilder.createChild(appSpace, {
                     type: "div",
-                    style: __assign(__assign({ gridArea: "t" }, VideoTimer_Styles_2.VideoTimerStyles.text), { fontSize: 36 }),
+                    style: __assign(__assign({ gridArea: "t" }, Todo_Styles_2.TodoStyles.text), { fontSize: 36 }),
                     attributes: {
                         innerHTML: "0:00:000",
                     },
                 });
                 var buttonGrid_1 = Util_HtmlBuilder_2.HtmlBuilder.createChild(appSpace, {
                     type: "div",
-                    style: __assign(__assign({}, VideoTimer_Styles_2.VideoTimerStyles.centered), { gridGap: "0.5em", gridTemplateColumns: "auto auto auto", gridAutoRows: "auto", gridAutoFlow: "row" }),
+                    style: __assign(__assign({}, Todo_Styles_2.TodoStyles.centered), { gridGap: "0.5em", gridTemplateColumns: "auto auto auto", gridAutoRows: "auto", gridAutoFlow: "row" }),
                 });
                 var markers = ["✨", "✂", "❌", "✔", "❓"].map(function (icon) {
                     return Util_HtmlBuilder_2.HtmlBuilder.createChild(buttonGrid_1, {
                         type: "div",
-                        style: VideoTimer_Styles_2.VideoTimerStyles.button,
+                        style: Todo_Styles_2.TodoStyles.button,
                         attributes: {
                             innerHTML: "" + icon,
                             onclick: function () {
@@ -514,20 +541,20 @@ define("VideoTimer.Entry", ["require", "exports", "Util.HtmlBuilder", "VideoTime
             }
             var footer = Util_HtmlBuilder_2.HtmlBuilder.createChild(outline, {
                 type: "div",
-                style: __assign(__assign({ gridArea: "f", display: "grid" }, VideoTimer_Styles_2.VideoTimerStyles.centered), { 
+                style: __assign(__assign({ gridArea: "f", display: "grid" }, Todo_Styles_2.TodoStyles.centered), { 
                     //gridTemplateColumns: "2fr 1fr 2fr",
                     gridGap: "1em", margin: "0.5em", gridTemplateAreas: "\n                    \"w a s\"\n                " }),
             });
             var warning = Util_HtmlBuilder_2.HtmlBuilder.createChild(footer, {
                 type: "div",
-                style: __assign(__assign({ gridArea: "w" }, VideoTimer_Styles_2.VideoTimerStyles.text), { fontSize: 12, textAlign: "left", alignSelf: "left", justifySelf: "left" }),
+                style: __assign(__assign({ gridArea: "w" }, Todo_Styles_2.TodoStyles.text), { fontSize: 12, textAlign: "left", alignSelf: "left", justifySelf: "left" }),
                 attributes: {
                     innerHTML: "for personal use only.",
                 },
             });
             var socials = Util_HtmlBuilder_2.HtmlBuilder.createChild(footer, {
                 type: "div",
-                style: __assign(__assign({ gridArea: "s" }, VideoTimer_Styles_2.VideoTimerStyles.text), { fontSize: 12, textAlign: "right", justifySelf: "right" }),
+                style: __assign(__assign({ gridArea: "s" }, Todo_Styles_2.TodoStyles.text), { fontSize: 12, textAlign: "right", justifySelf: "right" }),
                 attributes: {
                     innerHTML: "😸github.com/TacticalDan 🕊@tactical_dan",
                 },

@@ -1,5 +1,5 @@
 import { HtmlBuilder } from './Util.HtmlBuilder';
-import { VideoTimerStyles as Styles } from './VideoTimer.Styles';
+import { TodoStyles as Styles } from './Todo.Styles';
 import { Model } from './Model';
 
 // VideoTimerEntry

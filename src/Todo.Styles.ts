@@ -1,6 +1,6 @@
 import { Style } from "./Util.HtmlBuilder";
 
-export namespace VideoTimerStyles {
+export namespace TodoStyles {
 
     export const outline: Style = {
         display: "grid",

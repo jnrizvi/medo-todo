@@ -1,5 +1,5 @@
 import { HtmlBuilder } from './Util.HtmlBuilder';
-import { VideoTimerStyles as Styles } from './VideoTimer.Styles';
+import { TodoStyles as Styles } from './Todo.Styles';
 import { Model } from './Model';
 
 export namespace TodoEntry {
@@ -26,54 +26,82 @@ export namespace TodoEntry {
         const appContainer = HtmlBuilder.createChild(body, {
             type: "div",
             style: {
-                gridArea: "a",
                 ...Styles.centered,
-                gridTemplateRows: "auto 3em auto",
-                gridTemplateAreas: `
-                    "p"
-                    "t"
-                    "g"
-                `,
             }
         });
 
         // 🏭 Where the magic happens
         {
-            // whatever changes is listed as part of the state
+            // whatever changes is listed as a member of the state
             let model = new Model<CounterState>({
-                clickCounter: 0
+                inputFieldValue: "",
+                listOfTodos: []
             });
 
-            const numberBox = HtmlBuilder.createChild(appContainer, {
+            const formContainer = HtmlBuilder.createChild(appContainer, {
                 type: "div",
-                attributes: {
-                    innerHTML: '0'
+                style: {
+                    display: "flex"
                 }
             });
 
-            const button = HtmlBuilder.createChild(appContainer, {
-                type: "button",
+            const addNewInputField = HtmlBuilder.createChild(formContainer, {
+                type: "input",
+                attributes: {
+                    id: "addNewInputField",
+                    placeholder: "Enter Todo description",
+                    onchange: () => {
+                        let addNewInputField = (<HTMLInputElement>document.getElementById("addNewInputField")).value;
+                        model.mutate({ inputFieldValue: addNewInputField })
+                    },
+                }
+            });
+
+            const addButton = HtmlBuilder.createChild(formContainer, {
+                type: "div",
+                style: {
+                    ...Styles.button,
+                    fontSize: 24,
+                    width: "fit-content",
+                    height: "fit-content"
+                },
                 attributes: {
                     onclick: () => {
-                            let incremented = model.state.clickCounter + 1 // model.state.clickCounter += 1 mutates the state prematurely!
-                            // console.log(incremented)
-                            model.mutate({clickCounter: incremented})
+                            // model.state.clickCounter += 1 mutates the state prematurely!
+                            console.log(model.state.inputFieldValue)
+                            let listOfTodosCopy = [...model.state.listOfTodos]
+                            listOfTodosCopy.push(model.state.inputFieldValue)
+                            model.mutate({ listOfTodos: listOfTodosCopy});
+                            (<HTMLInputElement>document.getElementById("addNewInputField")).value = ""
                         },
-                    innerHTML: "Click Me"
+                    innerHTML: "Add"
                 }
+            });
+
+            const taskListBox = HtmlBuilder.createChild(appContainer, {
+                type: "div",
             });
 
             // model.listen doesn't fire when the state mutates prematurely
-            model.listen(["clickCounter"], state => {
-                console.log('model.listen has fired')
-                let countCopy = state.clickCounter
-                numberBox.innerHTML = `${countCopy}`
+            model.listen(["listOfTodos"], state => {
+                console.log(model.state.listOfTodos)
+                const newTodo = HtmlBuilder.createChild(taskListBox, {
+                    type: "div",
+                    style: {
+                        padding: "8px",
+                        backgroundColor: "lightblue"
+                    },
+                    attributes: {
+                        innerHTML: state.inputFieldValue
+                    }
+                });
             });
         }
     }
 
     type CounterState = {
-        clickCounter: number
+        inputFieldValue: string,
+        listOfTodos: Array<string>
     };
 }
 
